@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Words · GRE Vocabulary Loop</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app app--list">
+    <header class="app__header">
+      <a class="app__back" href="index.html">← Menu</a>
+      <h1 class="app__title">All Words</h1>
+      <div class="app__progress" id="progress">–</div>
+    </header>
+
+    <div class="controls">
+      <input
+        type="search"
+        id="search"
+        class="controls__search"
+        placeholder="Search word or meaning…"
+        autocomplete="off"
+      />
+      <div class="chips" id="chips">
+        <button type="button" class="chip chip--active" data-filter="all">All <span data-count="all">–</span></button>
+        <button type="button" class="chip" data-filter="learning">To learn <span data-count="learning">–</span></button>
+        <button type="button" class="chip" data-filter="review">Review <span data-count="review">–</span></button>
+        <button type="button" class="chip" data-filter="familiar">Familiar <span data-count="familiar">–</span></button>
+      </div>
+      <div class="controls__bulk">
+        <button type="button" class="linkbtn" id="select-all">Select all shown</button>
+        <span class="controls__hint" id="shown-count"></span>
+      </div>
+    </div>
+
+    <div class="list" id="list">Loading…</div>
+  </main>
+
+  <!-- Sticky action bar (only visible when something is selected) -->
+  <div class="actionbar" id="actionbar" hidden>
+    <span class="actionbar__count" id="sel-count">0 selected</span>
+    <div class="actionbar__buttons">
+      <button type="button" class="btn btn--true" data-move="familiar">→ Familiar</button>
+      <button type="button" class="btn btn--review" data-move="review">→ Review</button>
+      <button type="button" class="btn btn--ghost" data-move="learning">→ To learn</button>
+      <button type="button" class="btn btn--ghost" id="clear-sel">Clear</button>
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+  <script src="list.js"></script>
+</body>
+</html>

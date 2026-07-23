@@ -116,6 +116,53 @@ window.Store = (function () {
     return arr;
   }
 
+  // ---- Manual regrouping (used by the word-list / triage page) ---------
+
+  function removeFrom(arr, id) {
+    var i = arr.indexOf(id);
+    if (i !== -1) arr.splice(i, 1);
+  }
+
+  // Which group a word currently belongs to.
+  function groupOf(id) {
+    if (getReview().indexOf(id) !== -1) return "review";
+    if (getFamiliar().indexOf(id) !== -1) return "familiar";
+    return "learning";
+  }
+
+  // Move one or more words into a group, keeping every list consistent.
+  //   familiar -> clears the "missed" flag (a manual "I know this" override)
+  //   review   -> sets the "missed" flag
+  //   learning -> appended to the learning queue, missed history untouched
+  function moveToGroup(ids, group) {
+    var learning = getLearning();
+    var review = getReview();
+    var familiar = getFamiliar();
+    var missed = getMissed();
+
+    ids.forEach(function (id) {
+      if (!exists(id)) return;
+      removeFrom(learning, id);
+      removeFrom(review, id);
+      removeFrom(familiar, id);
+
+      if (group === "familiar") {
+        familiar.push(id);
+        removeFrom(missed, id);
+      } else if (group === "review") {
+        review.push(id);
+        if (missed.indexOf(id) === -1) missed.push(id);
+      } else {
+        if (learning.indexOf(id) === -1) learning.push(id);
+      }
+    });
+
+    setLearning(learning);
+    setReview(review);
+    setFamiliar(familiar);
+    setArr(MISSED_KEY, missed);
+  }
+
   // Build a fresh shuffled learning queue from every word not yet graduated.
   function freshLearningQueue() {
     var graduated = {};
@@ -147,6 +194,8 @@ window.Store = (function () {
     getMissed: getMissed,
     isMissed: isMissed,
     markMissed: markMissed,
+    groupOf: groupOf,
+    moveToGroup: moveToGroup,
     freshLearningQueue: freshLearningQueue,
   };
 })();
