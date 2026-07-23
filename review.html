@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Learn New · GRE Vocabulary Loop</title>
+  <title>Review · GRE Vocabulary Loop</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="app">
     <header class="app__header">
       <a class="app__back" href="index.html">← Menu</a>
-      <h1 class="app__title">Learn New</h1>
+      <h1 class="app__title">Review</h1>
       <div class="app__progress" id="progress">–</div>
     </header>
 
@@ -46,23 +46,25 @@
 
         <div class="answer__actions">
           <button type="button" class="btn btn--true" id="true-btn">True</button>
-          <button type="button" class="btn btn--false" id="false-btn">False</button>
+          <button type="button" class="btn btn--false" id="false-btn">False (relearn)</button>
         </div>
       </div>
 
-      <div class="done" id="done" hidden>
-        <p class="done__emoji">🎉</p>
-        <p class="done__text">You've cleared the whole learning loop!</p>
-        <a class="btn btn--primary" href="index.html">Back to Menu</a>
+      <div class="done" id="empty" hidden>
+        <p class="done__emoji">🌱</p>
+        <p class="done__text">No review words yet. These are words you missed at least once before remembering them.</p>
+        <a class="btn btn--primary" href="learn.html">Learn New</a>
       </div>
     </section>
 
-    <footer class="app__footer">
-      <button type="button" class="btn btn--ghost" id="reset-btn">Reset &amp; Reshuffle</button>
+    <footer class="app__footer app__footer--tools">
+      <button type="button" class="btn btn--ghost" id="export-btn">Export review.json</button>
+      <label class="btn btn--ghost" for="import-input">Import review.json</label>
+      <input type="file" id="import-input" accept="application/json,.json" hidden />
     </footer>
   </main>
 
   <script src="store.js"></script>
-  <script src="learn.js"></script>
+  <script src="review.js"></script>
 </body>
 </html>

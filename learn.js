@@ -82,39 +82,51 @@
     el.answer.hidden = false;
   }
 
-  // True: remembered -> add to familiar store, remove from the loop.
+  // True: remembered -> graduate out of the loop.
+  //   never missed -> familiar   |   missed before -> review
   function markTrue() {
     if (!queue.length) return;
     var id = queue.shift();
 
-    var familiar = Store.getFamiliar();
-    if (familiar.indexOf(id) === -1) familiar.push(id);
-    Store.setFamiliar(familiar);
-    Store.setLearning(queue);
+    var targetKey = Store.isMissed(id) ? "review" : "familiar";
+    var target =
+      targetKey === "review" ? Store.getReview() : Store.getFamiliar();
+    if (target.indexOf(id) === -1) target.push(id);
+    if (targetKey === "review") Store.setReview(target);
+    else Store.setFamiliar(target);
 
+    Store.setLearning(queue);
     render();
   }
 
-  // False: forgotten -> re-insert ~10 words later.
+  // False: forgotten -> flag as missed and re-insert ~10 words later.
   function markFalse() {
+    if (!queue.length) return;
+    var id = queue[0];
+    Store.markMissed(id); // permanently blocks this word from familiar
+
     if (queue.length <= 1) {
       render();
       return;
     }
-    var id = queue.shift();
+    queue.shift();
     var pos = Math.min(FALSE_GAP, queue.length);
     queue.splice(pos, 0, id);
     Store.setLearning(queue);
     render();
   }
 
+  // Keep only ids that still exist and haven't already graduated.
   function sanitize(ids) {
-    var familiar = {};
+    var graduated = {};
     Store.getFamiliar().forEach(function (id) {
-      familiar[id] = true;
+      graduated[id] = true;
+    });
+    Store.getReview().forEach(function (id) {
+      graduated[id] = true;
     });
     return ids.filter(function (id) {
-      return Store.exists(id) && !familiar[id];
+      return Store.exists(id) && !graduated[id];
     });
   }
 

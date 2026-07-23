@@ -1,6 +1,7 @@
-/* Review Familiar: cycle through words already marked familiar.
-   True  -> still remembered, rotate to the end of the familiar list.
-   False -> forgotten, remove from familiar and send back to the learning loop. */
+/* Review: cycle through words that were missed at least once before being
+   remembered. These can never return to familiar.
+     True  -> still remembered, rotate to the end of the review list.
+     False -> forgotten again, send back to the learning loop. */
 (function () {
   "use strict";
 
@@ -23,7 +24,7 @@
     importInput: document.getElementById("import-input"),
   };
 
-  // The persisted familiar list itself acts as the rotating review queue.
+  // The persisted review list itself acts as the rotating review queue.
   var queue = [];
 
   function currentWord() {
@@ -34,7 +35,7 @@
     var w = currentWord();
 
     if (!w) {
-      el.progress.textContent = "0 familiar";
+      el.progress.textContent = "0 in review";
       el.form.hidden = true;
       el.answer.hidden = true;
       el.word.hidden = true;
@@ -43,7 +44,7 @@
       return;
     }
 
-    el.progress.textContent = queue.length + " familiar";
+    el.progress.textContent = queue.length + " in review";
     el.word.textContent = w.word;
     el.phonetic.textContent = w.phonetic || "";
 
@@ -81,7 +82,7 @@
     el.answer.hidden = false;
   }
 
-  // True: still familiar -> rotate to the end.
+  // True: still remembered -> rotate to the end.
   function markTrue() {
     if (queue.length <= 1) {
       render();
@@ -89,17 +90,15 @@
     }
     var id = queue.shift();
     queue.push(id);
-    Store.setFamiliar(queue);
+    Store.setReview(queue);
     render();
   }
 
-  // False: forgotten -> drop from familiar, flag as missed, back to learning.
-  // Once missed, this word can never return to familiar (only review).
+  // False: forgotten again -> drop from review, back to the learning loop.
   function markFalse() {
     if (!queue.length) return;
     var id = queue.shift();
-    Store.setFamiliar(queue);
-    Store.markMissed(id);
+    Store.setReview(queue);
 
     var learning = Store.getLearning();
     if (learning.indexOf(id) === -1) learning.push(id);
@@ -108,7 +107,7 @@
     render();
   }
 
-  // ---- Export / Import a real familiar.json ----------------------------
+  // ---- Export / Import a real review.json ------------------------------
 
   function exportJson() {
     var payload = {
@@ -125,7 +124,7 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     a.href = url;
-    a.download = "familiar.json";
+    a.download = "review.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -137,7 +136,6 @@
     reader.onload = function () {
       try {
         var data = JSON.parse(reader.result);
-        // Accept either {words:[{id}]} (our export) or a plain array of ids.
         var ids = Array.isArray(data)
           ? data
           : (data.words || []).map(function (w) {
@@ -149,22 +147,21 @@
             return Store.exists(id);
           });
 
-        // Merge with any existing familiar words, de-duplicated.
-        var merged = Store.getFamiliar().slice();
+        var merged = Store.getReview().slice();
         ids.forEach(function (id) {
           if (merged.indexOf(id) === -1) merged.push(id);
+          Store.markMissed(id); // review words are, by definition, missed
         });
-        // Remove imported words from the learning loop.
         var learning = Store.getLearning().filter(function (id) {
           return merged.indexOf(id) === -1;
         });
 
-        Store.setFamiliar(merged);
+        Store.setReview(merged);
         Store.setLearning(learning);
         queue = merged;
         render();
       } catch (e) {
-        alert("Could not read that file as familiar.json.");
+        alert("Could not read that file as review.json.");
         console.error(e);
       }
     };
@@ -187,20 +184,19 @@
   el.exportBtn.addEventListener("click", exportJson);
   el.importInput.addEventListener("change", function (e) {
     if (e.target.files && e.target.files[0]) importJson(e.target.files[0]);
-    e.target.value = ""; // allow re-importing the same file
+    e.target.value = "";
   });
 
   // ---- Boot ------------------------------------------------------------
 
   Store.loadVocab()
     .then(function () {
-      // Keep only ids that still exist; shuffle for review variety.
       queue = Store.shuffle(
-        Store.getFamiliar().filter(function (id) {
+        Store.getReview().filter(function (id) {
           return Store.exists(id);
         })
       );
-      Store.setFamiliar(queue);
+      Store.setReview(queue);
       render();
     })
     .catch(function (err) {

@@ -1,10 +1,19 @@
 /* Shared data layer for the GRE Vocabulary Loop.
-   No backend: word data comes from vocab.json, all progress lives in localStorage. */
+   No backend: word data comes from vocab.json, all progress lives in localStorage.
+
+   Groups:
+     learning  – words still being drilled.
+     familiar  – graduated words that were NEVER missed.
+     review    – graduated words that WERE missed at least once.
+   A word marked False anywhere is permanently "missed" and can only ever
+   graduate to review, never familiar. */
 window.Store = (function () {
   "use strict";
 
   var LEARN_KEY = "gre-learning-queue-v2";
   var FAMILIAR_KEY = "gre-familiar-v2";
+  var REVIEW_KEY = "gre-review-v2";
+  var MISSED_KEY = "gre-missed-v2";
 
   var wordsById = {};
   var _allIds = [];
@@ -69,6 +78,31 @@ window.Store = (function () {
   function setFamiliar(a) {
     setArr(FAMILIAR_KEY, a);
   }
+  function getReview() {
+    return getArr(REVIEW_KEY);
+  }
+  function setReview(a) {
+    setArr(REVIEW_KEY, a);
+  }
+
+  // ---- Missed tracking -------------------------------------------------
+
+  function getMissed() {
+    return getArr(MISSED_KEY);
+  }
+
+  function isMissed(id) {
+    return getMissed().indexOf(id) !== -1;
+  }
+
+  // Permanently flag a word as having been missed at least once.
+  function markMissed(id) {
+    var missed = getMissed();
+    if (missed.indexOf(id) === -1) {
+      missed.push(id);
+      setArr(MISSED_KEY, missed);
+    }
+  }
 
   // ---- Utilities -------------------------------------------------------
 
@@ -82,15 +116,18 @@ window.Store = (function () {
     return arr;
   }
 
-  // Build a fresh shuffled learning queue from every word not yet familiar.
+  // Build a fresh shuffled learning queue from every word not yet graduated.
   function freshLearningQueue() {
-    var familiar = {};
+    var graduated = {};
     getFamiliar().forEach(function (id) {
-      familiar[id] = true;
+      graduated[id] = true;
+    });
+    getReview().forEach(function (id) {
+      graduated[id] = true;
     });
     return shuffle(
       _allIds.filter(function (id) {
-        return !familiar[id];
+        return !graduated[id];
       })
     );
   }
@@ -105,6 +142,11 @@ window.Store = (function () {
     setLearning: setLearning,
     getFamiliar: getFamiliar,
     setFamiliar: setFamiliar,
+    getReview: getReview,
+    setReview: setReview,
+    getMissed: getMissed,
+    isMissed: isMissed,
+    markMissed: markMissed,
     freshLearningQueue: freshLearningQueue,
   };
 })();
