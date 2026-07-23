@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learn New · GRE Vocabulary Loop</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <a class="app__back" href="index.html">← Menu</a>
+      <h1 class="app__title">Learn New</h1>
+      <div class="app__progress" id="progress">–</div>
+    </header>
+
+    <section class="card" id="card">
+      <p class="card__word" id="word">Loading…</p>
+      <p class="card__phonetic" id="phonetic"></p>
+
+      <form class="recall" id="recall-form">
+        <input
+          type="text"
+          id="guess"
+          class="recall__input"
+          placeholder="Type the meaning here"
+          autocomplete="off"
+          autofocus
+        />
+        <button type="submit" class="btn btn--primary" id="submit-btn">Submit</button>
+      </form>
+
+      <div class="answer" id="answer" hidden>
+        <div class="answer__block">
+          <span class="answer__label">Meaning</span>
+          <p class="answer__text" id="meaning"></p>
+        </div>
+        <div class="answer__block" id="synonyms-block">
+          <span class="answer__label">Synonyms</span>
+          <p class="answer__text" id="synonyms"></p>
+        </div>
+        <div class="answer__block" id="example-block">
+          <span class="answer__label">Example</span>
+          <p class="answer__text answer__text--example" id="example"></p>
+        </div>
+
+        <div class="answer__actions">
+          <button type="button" class="btn btn--true" id="true-btn">True</button>
+          <button type="button" class="btn btn--false" id="false-btn">False</button>
+        </div>
+      </div>
+
+      <div class="done" id="done" hidden>
+        <p class="done__emoji">🎉</p>
+        <p class="done__text">You've marked every word familiar!</p>
+        <a class="btn btn--primary" href="familiar.html">Review Familiar</a>
+      </div>
+    </section>
+
+    <footer class="app__footer">
+      <button type="button" class="btn btn--ghost" id="reset-btn">Reset &amp; Reshuffle</button>
+    </footer>
+  </main>
+
+  <script src="store.js"></script>
+  <script src="learn.js"></script>
+</body>
+</html>

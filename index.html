@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GRE Vocabulary Loop</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app app--menu">
+    <header class="menu__head">
+      <h1 class="menu__title">GRE Vocabulary Loop</h1>
+      <p class="menu__subtitle">Choose what to work on today.</p>
+    </header>
+
+    <div class="menu__cards">
+      <a class="entry" href="learn.html">
+        <span class="entry__icon">📚</span>
+        <span class="entry__name">Learn New</span>
+        <span class="entry__desc">Cycle through words you haven't marked as familiar yet.</span>
+        <span class="entry__count" id="learn-count">–</span>
+      </a>
+
+      <a class="entry" href="familiar.html">
+        <span class="entry__icon">✅</span>
+        <span class="entry__name">Review Familiar</span>
+        <span class="entry__desc">Go back over the words you've already remembered.</span>
+        <span class="entry__count" id="familiar-count">–</span>
+      </a>
+    </div>
+  </main>
+
+  <script src="store.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
